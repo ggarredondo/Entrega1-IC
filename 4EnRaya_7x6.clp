@@ -291,7 +291,46 @@
 )
 
 ;;;;;;;;;;;;;;;;;;;;;; CONOCIMIENTO EXPERTO ;;;;;;;;;;
-;;;;; ¡¡¡¡¡¡¡¡¡¡ Añadir conocimiento para que juege como vosotros jugariais !!!!!!!!!!!!
+
+;;;;; Reglas para deducir la posición siguiente en horizontal, vertical y diagonal
+
+(defrule siguiente_horizontal 
+(Tablero Juego ?i ?j ?turno)
+(Tablero Juego ?i ?c ?turno)
+(test (= (+ 1 ?j) ?c) )
+=>
+(assert (siguiente ?i ?j h ?i ?c))
+) 
+
+
+(defrule siguiente_diagonal_directa
+(Tablero Juego ?i ?j ?turno)
+(Tablero Juego ?f ?c ?turno)
+(test (and (= (+ 1 ?i) ?f) (= (+ 1 ?j) ?c) ) )
+=>
+(assert (siguiente ?i ?j d1 ?f ?c))
+)
+
+
+(defrule siguiente_diagonal_inversa
+(Tablero Juego ?i ?j ?turno)
+(Tablero Juego ?f ?c ?turno)
+(test (and (= (- ?i 1) ?f) (= (+ 1 ?j) ?c) ) )
+=>
+(assert (siguiente ?i ?j d2 ?f ?c))
+)
+
+
+(defrule siguiente_vertical 
+(Tablero Juego ?i ?j ?turno)
+(Tablero Juego ?f ?j ?turno)
+(test (= (+ 1 ?i) ?f) )
+=>
+(assert (siguiente ?i ?j v ?f ?j))
+)
+
+
+
 
 
 

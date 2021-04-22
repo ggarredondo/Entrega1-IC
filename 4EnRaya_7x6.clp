@@ -358,9 +358,22 @@
 
 ;;;;; Regla para deducir que hay tres fichas en línea para un mismo jugador
 
+(defrule tres_en_linea
+(dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
+(dos_en_linea ?f ?c ?direccion ?y ?x ?turno)
+=>
+(assert (tres_en_linea ?i ?j ?direccion ?y ?x ?turno))
+)
 
+;;;;; Regla para deducir que un jugador ganaría si jugase en la columna c
 
-
+(defrule ganaria_siguiente
+(tres_en_linea ?i ?j ?direccion ?y ?x ?turno)
+(siguiente ?y ?x ?direccion ?f ?c)
+(Tablero Juego ?f ?c _)
+=>
+(assert (ganaria ?turno ?c))
+)
 
 
 

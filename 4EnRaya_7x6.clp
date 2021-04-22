@@ -348,8 +348,7 @@
 ;;;;; Regla para deducir que hay dos fichas en línea para un mismo jugador
 
 (defrule dos_en_linea 
-(Tablero Juego ?i ?j ?turno)
-(not (Tablero Juego ?i ?j _))
+(Tablero Juego ?i ?j ?turno&~_)
 (Tablero Juego ?f ?c ?turno)
 (siguiente ?i ?j ?direccion ?f ?c)
 =>

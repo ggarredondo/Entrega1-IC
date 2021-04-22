@@ -389,7 +389,7 @@
 (Juega M|J ?c)
 ?g <- (ganaria M|J ?c)
 =>
-(printout t "Ayo the pizza here" crlf)
+(printout t "Ayo the pizza here" crlf) ;;;;;; ELIMINAR
 (retract ?g)
 )
 

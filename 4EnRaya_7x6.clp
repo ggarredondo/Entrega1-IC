@@ -365,7 +365,31 @@
 (assert (tres_en_linea ?i ?j ?direccion ?y ?x ?turno))
 )
 
-;;;;; Regla para deducir que un jugador ganaría si jugase en la columna c
+;;;;; Regla para deducir que hay dos fichas en línea, un hueco y otra ficha para un mismo jugador
+;;;;; (que también podría resultar en una victoria en una jugada, igual que en tres en línea)
+;;;;; Por ejemplo: J J _ J 	 o	 J _ J J
+
+(defrule centro_en_linea_21
+(dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
+(siguiente ?f ?c ?direccion ?y ?x)
+(Tablero Juego ?y ?x _)
+(siguiente ?y ?x ?direccion ?a ?b)
+(Tablero Juego ?a ?b ?turno)
+=>
+(assert (centro_en_linea ?y ?x ?turno))
+)
+
+(defrule centro_en_linea_12
+(dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
+(siguiente ?y ?x ?direccion ?i ?j)
+(Tablero Juego ?y ?x _)
+(siguiente ?a ?b ?direccion ?y ?x)
+(Tablero Juego ?a ?b ?turno)
+=>
+(assert (centro_en_linea ?y ?x ?turno))
+)
+
+;;;;; Regla para deducir que un jugador ganaría si jugase en una columna
 
 (defrule ganaria_siguiente
 (tres_en_linea ?i ?j ?direccion ?y ?x ?turno)
@@ -383,6 +407,13 @@
 (Tablero Juego ?f ?c _)
 =>
 (assert (ganaria ?turno ?c))
+)
+
+(defrule ganaria_centro
+(centro_en_linea ?i ?j ?turno)
+(caeria ?i ?j)
+=>
+(assert (ganaria ?turno ?j))
 )
 
 (defrule limpiar_ganaria

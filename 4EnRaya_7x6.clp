@@ -302,7 +302,6 @@
 (assert (siguiente ?i ?j h ?i ?c))
 ) 
 
-
 (defrule siguiente_diagonal_directa
 (Tablero Juego ?i ?j ?turno)
 (Tablero Juego ?f ?c ?turno)
@@ -310,7 +309,6 @@
 =>
 (assert (siguiente ?i ?j d1 ?f ?c))
 )
-
 
 (defrule siguiente_diagonal_inversa
 (Tablero Juego ?i ?j ?turno)
@@ -320,7 +318,6 @@
 (assert (siguiente ?i ?j d2 ?f ?c))
 )
 
-
 (defrule siguiente_vertical 
 (Tablero Juego ?i ?j ?turno)
 (Tablero Juego ?f ?j ?turno)
@@ -328,6 +325,54 @@
 =>
 (assert (siguiente ?i ?j v ?f ?j))
 )
+
+;;;;; Reglas para deducir donde caería una ficha si se juega en la columna j
+
+(defrule caeria_sobre_vacio
+(Tablero Juego ?i ?j _)
+(not (siguiente ?i ?j v ?f ?j))
+=>
+(assert (caeria ?i ?j))
+)
+
+(defrule caeria_sobre_ficha
+(Tablero Juego ?i ?j _)
+(Tablero Juego ?f ?j M|J)
+(siguiente ?i ?j v ?f ?j)
+?r <- (caeria ?f ?j)
+=>
+(retract ?r)
+(assert (caeria ?i ?j))
+)
+
+;;;;; Regla para deducir que hay dos fichas en línea para un mismo jugador
+
+(defrule dos_en_linea 
+(Tablero Juego ?i ?j ?turno)
+(not (Tablero Juego ?i ?j _))
+(Tablero Juego ?f ?c ?turno)
+(siguiente ?i ?j ?direccion ?f ?c)
+=>
+(assert (dos_en_linea ?i ?j ?direccion ?f ?c ?turno))
+)
+
+;;;;; Regla para deducir que hay tres fichas en línea para un mismo jugador
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

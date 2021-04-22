@@ -385,11 +385,11 @@
 (assert (ganaria ?turno ?c))
 )
 
-(defrule limpiar_ganaria ;;;;;;;;; NO FUNCIONA
+(defrule limpiar_ganaria
+(declare (salience 10))
 (Juega M|J ?c)
 ?g <- (ganaria M|J ?c)
 =>
-(printout t "Ayo the pizza here" crlf) ;;;;;; ELIMINAR
 (retract ?g)
 )
 

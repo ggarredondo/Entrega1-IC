@@ -370,13 +370,30 @@
 (defrule ganaria_siguiente
 (tres_en_linea ?i ?j ?direccion ?y ?x ?turno)
 (siguiente ?y ?x ?direccion ?f ?c)
+(caeria ?f ?c)
 (Tablero Juego ?f ?c _)
 =>
 (assert (ganaria ?turno ?c))
 )
 
+(defrule ganaria_anterior
+(tres_en_linea ?i ?j ?direccion ?y ?x ?turno)
+(siguiente ?f ?c ?direccion ?i ?j)
+(caeria ?f ?c)
+(Tablero Juego ?f ?c _)
+=>
+(assert (ganaria ?turno ?c))
+)
 
+(defrule limpiar_ganaria ;;;;;;;;; NO FUNCIONA
+(Juega M|J ?c)
+?g <- (ganaria M|J ?c)
+=>
+(printout t "Ayo the pizza here" crlf)
+(retract ?g)
+)
 
+;;;;;
 
 
 

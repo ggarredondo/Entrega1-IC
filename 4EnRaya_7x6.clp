@@ -355,13 +355,22 @@
 (assert (dos_en_linea ?i ?j ?direccion ?f ?c ?turno))
 )
 
-;;;;; Regla para deducir que hay tres fichas en línea para un mismo jugador
+;;;;; Regla para deducir que hay tres fichas en línea para un mismo jugador y un espacio antes o después
 
-(defrule tres_en_linea
+(defrule tres_en_linea_siguiente
 (dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
 (dos_en_linea ?f ?c ?direccion ?y ?x ?turno)
+(siguiente ?y ?x ?direccion ?a ?b)
 =>
-(assert (tres_en_linea ?i ?j ?direccion ?y ?x ?turno))
+(assert (tres_en_linea ?a ?b ?turno))
+)
+
+(defrule tres_en_linea_anterior
+(dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
+(dos_en_linea ?f ?c ?direccion ?y ?x ?turno)
+(siguiente ?a ?b ?direccion ?i ?j)
+=>
+(assert (tres_en_linea ?a ?b ?turno))
 )
 
 ;;;;; Regla para deducir que hay dos fichas en línea, un hueco y otra ficha para un mismo jugador
@@ -390,22 +399,11 @@
 
 ;;;;; Regla para deducir que un jugador ganaría si jugase en una columna
 
-(defrule ganaria_siguiente
-(tres_en_linea ?i ?j ?direccion ?y ?x ?turno)
-(siguiente ?y ?x ?direccion ?f ?c)
-(caeria ?f ?c)
-(Tablero Juego ?f ?c _)
+(defrule ganaria_tres
+(tres_en_linea ?i ?j ?turno)
+(caeria ?i ?j)
 =>
-(assert (ganaria ?turno ?c))
-)
-
-(defrule ganaria_anterior
-(tres_en_linea ?i ?j ?direccion ?y ?x ?turno)
-(siguiente ?f ?c ?direccion ?i ?j)
-(caeria ?f ?c)
-(Tablero Juego ?f ?c _)
-=>
-(assert (ganaria ?turno ?c))
+(assert (ganaria ?turno ?j))
 )
 
 (defrule ganaria_centro
@@ -423,12 +421,26 @@
 (retract ?g)
 )
 
-;;;;;
+;;;;; Clips juega con conocimiento experto
 
+(defrule eligir_jugada_ganadora
+(declare (salience 10))
+?f <- (Turno M)
+(ganaria M ?c)
+=>
+(printout t "Grave error" crlf)
+(assert (Juega M ?c))
+(retract ?f)
+)
 
-
-
-
+(defrule eligir_jugada_bloqueadora
+?f <- (Turno M)
+(ganaria J ?c)
+=>
+(printout t "No podras conmigo" crlf)
+(assert (Juega M ?c))
+(retract ?f)
+)
 
 
 

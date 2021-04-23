@@ -442,8 +442,27 @@
 (retract ?f)
 )
 
+(defrule comprobar_jugada_aleatoria_tres
+(declare (salience -1))
+?f <- (Jugar ?c)
+(tres_en_linea ?i ?c J)
+(caeria ?f ?c)
+(siguiente ?i ?c v ?f ?c)
+=>
+(retract ?f)
+(assert (Turno M))
+)
 
-
+(defrule comprobar_jugada_aleatoria_centro
+(declare (salience -1))
+?r <- (Jugar ?c)
+(centro_en_linea ?i ?c J)
+(caeria ?f ?c)
+(siguiente ?i ?c v ?f ?c)
+=>
+(retract ?r)
+(assert (Turno M))
+)
 
 
 

@@ -415,8 +415,8 @@
 
 (defrule limpiar_ganaria
 (declare (salience 10))
-(Juega M|J ?c)
-?g <- (ganaria M|J ?c)
+(Tablero Juego ?f ?c J|M)
+?g <- (ganaria J|M ?c)
 =>
 (retract ?g)
 )
@@ -428,7 +428,7 @@
 ?r <- (Turno M)
 (ganaria M ?c)
 =>
-(printout t "Grave error" crlf)
+(printout t "Grave error. Juego en la columna " ?c crlf)
 (retract ?r)
 (assert (Juega M ?c))
 )
@@ -438,7 +438,7 @@
 ?r <- (Turno M)
 (ganaria J ?c)
 =>
-(printout t "No podras conmigo" crlf)
+(printout t "No podras conmigo. Juego en la columna " ?c crlf)
 (retract ?r)
 (assert (Juega M ?c))
 )
@@ -464,43 +464,6 @@
 (retract ?r)
 (assert (Turno M))
 )
-
-(defrule tres_libres_siguientes
-?r <- (Turno M)
-(Tablero Juego ?i ?j M)
-(siguiente ?i ?j ?direccion ?f ?c)
-(siguiente ?f ?c ?direccion ?y ?x)
-(siguiente ?y ?x ?direccion ?a ?b)
-(Tablero Juego ?f ?c _)
-(Tablero Juego ?y ?x _)
-(Tablero Juego ?a ?b _)
-(caeria ?f ?c)
-=>
-(printout t "Sigo una estrategia. La estrategia ganadora" crlf)
-(retract ?r)
-(assert (Juega M ?c))
-)
-
-(defrule tres_libres_anteriores
-?r <- (Turno M)
-(Tablero Juego ?i ?j M)
-(siguiente ?f ?c direccion ?i ?j)
-(siguiente ?y ?x ?direccion ?f ?c)
-(siguiente ?a ?b ?direccion ?y ?x)
-(Tablero Juego ?f ?c _)
-(Tablero Juego ?y ?x _)
-(Tablero Juego ?a ?b _)
-(caeria ?f ?c)
-=>
-(printout t "Empieza por desintalar el CLIPS" crlf)
-(retract ?r)
-(assert (Juega M ?c))
-)
-
-
-
-
-
 
 
 

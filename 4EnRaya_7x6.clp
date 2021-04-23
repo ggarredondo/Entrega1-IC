@@ -425,31 +425,32 @@
 
 (defrule eligir_jugada_ganadora
 (declare (salience 10))
-?f <- (Turno M)
+?r <- (Turno M)
 (ganaria M ?c)
 =>
 (printout t "Grave error" crlf)
+(retract ?r)
 (assert (Juega M ?c))
-(retract ?f)
 )
 
 (defrule eligir_jugada_bloqueadora
-?f <- (Turno M)
+(declare (salience 5))
+?r <- (Turno M)
 (ganaria J ?c)
 =>
 (printout t "No podras conmigo" crlf)
+(retract ?r)
 (assert (Juega M ?c))
-(retract ?f)
 )
 
 (defrule comprobar_jugada_aleatoria_tres
 (declare (salience -1))
-?f <- (Jugar ?c)
+?r <- (Jugar ?c)
 (tres_en_linea ?i ?c J)
 (caeria ?f ?c)
 (siguiente ?i ?c v ?f ?c)
 =>
-(retract ?f)
+(retract ?r)
 (assert (Turno M))
 )
 
@@ -463,6 +464,28 @@
 (retract ?r)
 (assert (Turno M))
 )
+
+(defrule tres_libres_siguientes
+?r <- (Turno M)
+(Tablero ?i ?j M)
+(siguiente ?i ?j ?direccion ?f ?c)
+(siguiente ?f ?c ?direccion ?y ?x)
+(siguiente ?y ?x ?direccion ?a ?b)
+(Tablero ?f ?c _)
+(Tablero ?y ?x _)
+(Tablero ?a ?b _)
+(caeria ?f ?c)
+=>
+(printout t "Sigo una estrategia. La estrategia ganadora" crlf)
+(retract ?r)
+(assert (Juega M ?c))
+)
+
+
+
+
+
+
 
 
 

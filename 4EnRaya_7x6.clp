@@ -415,8 +415,8 @@
 
 (defrule limpiar_ganaria
 (declare (salience 10))
-(Tablero Juego ?f ?c J|M)
-?g <- (ganaria J|M ?c)
+(Juega M|J ?c)
+?g <- (ganaria M|J ?c)
 =>
 (retract ?g)
 )
@@ -438,7 +438,7 @@
 ?r <- (Turno M)
 (ganaria J ?c)
 =>
-(printout t "No podras conmigo. Juego en la columna " ?c crlf)
+(printout t "Juego en la columna " ?c " para bloquear tu jugada" crlf)
 (retract ?r)
 (assert (Juega M ?c))
 )
@@ -464,6 +464,75 @@
 (retract ?r)
 (assert (Turno M))
 )
+
+(defrule tres_libres_siguientes
+?r <- (Jugar ?q)
+(Tablero Juego ?i ?j M)
+(siguiente ?i ?j ?direccion ?f ?c)
+(siguiente ?f ?c ?direccion ?y ?x)
+(siguiente ?y ?x ?direccion ?a ?b)
+(Tablero Juego ?f ?c _)
+(Tablero Juego ?y ?x _)
+(Tablero Juego ?a ?b _)
+(caeria ?f ?c)
+=>
+(printout t "Juego en la columna " ?c " porque hay tres casillas libres posteriores a mi ficha" crlf)
+(retract ?r)
+(assert (Juega M ?c))
+)
+
+(defrule tres_libres_anteriores
+?r <- (Jugar ?q)
+(Tablero Juego ?i ?j M)
+(siguiente ?f ?c ?direccion ?i ?j)
+(siguiente ?y ?x ?direccion ?f ?c)
+(siguiente ?a ?b ?direccion ?y ?x)
+(Tablero Juego ?f ?c _)
+(Tablero Juego ?y ?x _)
+(Tablero Juego ?a ?b _)
+(caeria ?f ?c)
+=>
+(printout t "Juego en la columna " ?c " porque hay tres casillas libres anteriores a mi ficha" crlf)
+(retract ?r)
+(assert (Juega M ?c))
+)
+
+(defrule dos_libres_siguientes
+(declare (salience 1))
+?r <- (Jugar ?q)
+(dos_en_linea ?i ?j ?direccion ?f ?c M)
+(siguiente ?f ?c ?direccion ?y ?x)
+(siguiente ?y ?x ?direccion ?a ?b)
+(Tablero Juego ?y ?x _)
+(Tablero Juego ?a ?b _)
+(caeria ?y ?x)
+=>
+(printout t "Juego en la columna " ?x " porque hay dos casillas libres posteriores a mi dos en linea" crlf)
+(retract ?r)
+(assert (Juega M ?x))
+)
+
+(defrule dos_libres_anteriores
+(declare (salience 1))
+?r <- (Jugar ?q)
+(dos_en_linea ?i ?j ?direccion ?f ?c M)
+(siguiente ?y ?x ?direccion ?i ?j)
+(siguiente ?a ?b ?direccion ?y ?x)
+(Tablero Juego ?y ?x _)
+(Tablero Juego ?a ?b _)
+(caeria ?y ?x)
+=>
+(printout t "Juego en la columna " ?x " porque hay dos casillas libres anteriores a mi dos en linea" crlf)
+(retract ?r)
+(assert (Juega M ?x))
+)
+
+
+
+
+
+
+
 
 
 

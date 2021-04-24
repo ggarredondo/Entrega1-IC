@@ -292,7 +292,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;; CONOCIMIENTO EXPERTO ;;;;;;;;;;
 
-;;;;; Reglas para deducir la posición siguiente en horizontal, vertical y diagonal
+;;;;; Reglas para deducir la posición siguiente en horizontal, vertical y diagonal.
+;;;;; Para cada dirección posible se comprueba que existe otra casilla en la fila/columna
+;;;;; posterior (comprobando que la fila/columna del primero más uno es igual a la fila/columna
+;;;;; del segundo).
+
+;;;;; Se comprueba que existe una casilla en la columna siguiente.
+;;;;; Si es para J, sería: J J
 
 (defrule siguiente_horizontal 
 (Tablero Juego ?i ?j ?turno)
@@ -302,6 +308,10 @@
 (assert (siguiente ?i ?j h ?i ?c))
 ) 
 
+;;;;; Se comprueba que existe una casilla en la fila y columna siguiente.
+;;;;; Si es para J, sería: J _
+;;;;;                      _ J
+
 (defrule siguiente_diagonal_directa
 (Tablero Juego ?i ?j ?turno)
 (Tablero Juego ?f ?c ?turno)
@@ -310,6 +320,10 @@
 (assert (siguiente ?i ?j d1 ?f ?c))
 )
 
+;;;;; Se comprueba que existe una casilla en la fila anterior y columna siguiente.
+;;;;; Si es para J, sería: _ J
+;;;;;                      J _
+
 (defrule siguiente_diagonal_inversa
 (Tablero Juego ?i ?j ?turno)
 (Tablero Juego ?f ?c ?turno)
@@ -317,6 +331,12 @@
 =>
 (assert (siguiente ?i ?j d2 ?f ?c))
 )
+
+;;;;; Se comprueba que existe una casilla en la fila siguiente.
+;;;;; Si es para J, sería: J
+;;;;;                      J
+;;;;; (Como el número de fila del tablero sube hacia abajo, este
+;;;;; siguiente significa encontrar la casilla justo por debajo)
 
 (defrule siguiente_vertical 
 (Tablero Juego ?i ?j ?turno)
@@ -327,6 +347,10 @@
 )
 
 ;;;;; Reglas para deducir donde caería una ficha si se juega en la columna j
+;;;;; Hay dos posibilidades: que la columna esté vacía o que se haya colocado
+;;;;; al menos una ficha. Comprobamos ambos casos.
+
+;;;;; Si la casilla está vacía y no existe una casilla debajo.
 
 (defrule caeria_sobre_vacio
 (Tablero Juego ?i ?j _)
@@ -334,6 +358,12 @@
 =>
 (assert (caeria ?i ?j))
 )
+
+;;;;; Si la casilla está vacía y la casilla de abajo tiene una ficha J o M.
+;;;;; Además, aprovecho esta regla para eliminar los 'caeria' anteriores. Si
+;;;;; encontramos una nueva posición donde caería la ficha por encima de otra
+;;;;; significa necesariamente que el caería anterior ya está desfasado (donde
+;;;;; ahora hay una ficha).
 
 (defrule caeria_sobre_ficha
 (Tablero Juego ?i ?j _)
@@ -345,7 +375,9 @@
 (assert (caeria ?i ?j))
 )
 
-;;;;; Regla para deducir que hay dos fichas en línea para un mismo jugador
+;;;;; Regla para deducir que hay dos fichas en línea para un mismo jugador.
+;;;;; Simplemente se comprueba que una casilla es siguiente de otra para una
+;;;;; misma dirección y para toda casilla que no sea vacío.
 
 (defrule dos_en_linea 
 (Tablero Juego ?i ?j ?turno&~_)
@@ -355,7 +387,12 @@
 (assert (dos_en_linea ?i ?j ?direccion ?f ?c ?turno))
 )
 
-;;;;; Regla para deducir que hay tres fichas en línea para un mismo jugador y un espacio antes o después
+;;;;; Reglas para deducir que hay tres fichas en línea para un mismo jugador y un espacio antes o después.
+;;;;; Se comprueba que hay un dos en línea para un par de casillas 'a' y 'b' y para una par 'b' y 'c', y que
+;;;;; hay un espacío antes de las fichas o después en la msima dirección.
+;;;;; Por ejemplo: J J J _ 	o  _ J J J
+;;;;; Se establece el hecho con las coordenadas del espacio vacío (pues es donde la falta la ficha necesaria
+;;;;; para ganar) y el jugador que hace el tres en línea.
 
 (defrule tres_en_linea_siguiente
 (dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
@@ -374,8 +411,9 @@
 )
 
 ;;;;; Regla para deducir que hay dos fichas en línea, un hueco y otra ficha para un mismo jugador
-;;;;; (que también podría resultar en una victoria en una jugada, igual que en tres en línea)
+;;;;; (que también podría resultar en una victoria en una jugada, igual que en tres en línea).
 ;;;;; Por ejemplo: J J _ J 	 o	 J _ J J
+;;;;; Se establece el hecho con las coordenadas del hueco vacío y el jugador que hace el "centro en línea".
 
 (defrule centro_en_linea_21
 (dos_en_linea ?i ?j ?direccion ?f ?c ?turno)
@@ -397,7 +435,11 @@
 (assert (centro_en_linea ?y ?x ?turno))
 )
 
-;;;;; Regla para deducir que un jugador ganaría si jugase en una columna
+;;;;; Regla para deducir que un jugador ganaría si jugase en una columna.
+;;;;; Para ello usamos las reglas definidas anteriores de tres_en_linea y centro_en_linea,
+;;;;; que son los únicos casos posibles de victoria en este juego. Si se dan esos casos
+;;;;; y el espacio vacío dado por los hechos de tres/centro en línea es donde caería la ficha
+;;;;; al jugar en esa columna, se establece el hecho "ganaria".
 
 (defrule ganaria_tres
 (tres_en_linea ?i ?j ?turno)
@@ -421,7 +463,9 @@
 (retract ?g)
 )
 
-;;;;; Clips juega con conocimiento experto
+;;;;; Clips juega con conocimiento experto.
+
+;;;;; Lo primero y más importante, comprobar si la máquina puede ganar en en ese turno. Si es así, la regla se dispara con 10 de prioridad y se juega en esa columna.
 
 (defrule eligir_jugada_ganadora
 (declare (salience 10))
@@ -433,6 +477,10 @@
 (assert (Juega M ?c))
 )
 
+;;;;; Después, comprobar si la máquina puede perder en el siguiente turno del jugador. Si es así, la regla se dispara con 9 de prioridad y se juega en esa columna.
+;;;;; Esta regla tiene prioridad pero no más que "elegir_jugada_ganadora", ya que, lógicamente, si se gana en ese turno ya no se puede perder. No tiene
+;;;;; sentido bloquear cuando puedes ganar directamente.
+
 (defrule eligir_jugada_bloqueadora
 (declare (salience 9))
 ?r <- (Turno M)
@@ -443,27 +491,10 @@
 (assert (Juega M ?c))
 )
 
-(defrule comprobar_jugada_aleatoria_tres
-(declare (salience -1))
-?r <- (Jugar ?c)
-(tres_en_linea ?i ?c J)
-(caeria ?f ?c)
-(siguiente ?i ?c v ?f ?c)
-=>
-(retract ?r)
-(assert (Turno M))
-)
-
-(defrule comprobar_jugada_aleatoria_centro
-(declare (salience -1))
-?r <- (Jugar ?c)
-(centro_en_linea ?i ?c J)
-(caeria ?f ?c)
-(siguiente ?i ?c v ?f ?c)
-=>
-(retract ?r)
-(assert (Turno M))
-)
+;;;;; Si no hay una jugada ganadora o bloqueadora que realizar, el sistema sigue el siguiente comportamiento:
+;;;;; Primero, coloca donde haya donde tenga tres espacios libres después o antes de una ficha suya. Para ello,
+;;;;; se comprueban que las tres casillas posteriores o anteriores a una ficha M cualquiera estén libres
+;;;;; y se coloca la ficha justo en la primera libre, siempre y cuando la ficha vaya a caer en esa primera libre.
 
 (defrule tres_libres_siguientes
 ?r <- (Jugar ?q)
@@ -497,6 +528,11 @@
 (assert (Juega M ?c))
 )
 
+;;;;; Si, en cambio, lo que tenemos son dos casillas libres seguidas de un dos en línea para M, salta esta
+;;;;; regla con más prioridad, para así ponerse en situación de ganar. Para ello se comprueba que hay un dos
+;;;;; en línea para alguna dirección, que las dos casillas anteriores o siguientes están vacías. Si es así
+;;;;; se coloca ficha en la preimera casilla libre, siempre y cuando la ficha vaya a caer en la casilla en cuestión.
+
 (defrule dos_libres_siguientes
 (declare (salience 1))
 ?r <- (Jugar ?q)
@@ -525,6 +561,39 @@
 (printout t "Juego en la columna " ?x " porque hay dos casillas libres anteriores a mi dos en linea" crlf)
 (retract ?r)
 (assert (Juega M ?x))
+)
+
+;;;;; En caso de que el sistema juegue sin criterio porque no se den los cuatro posibles casos anteriores...
+;;;;; Con este par de reglas me aseguro de que se no coloque ficha aleatoriamente en una posición donde favorezca al
+;;;;; jugador y le haga ganar. 
+;;;;; Por ejemplo, si se da esta situación: J J J _
+;;;;;										M J M _
+;;;;; Asegurarnos que no coloca ficha en la columna cuatro porque entonces jugador podría ganar en el siguiente turno.
+
+(defrule comprobar_jugada_tres
+(declare (salience 1))
+?r <- (Juega M ?c)
+(tres_en_linea ?i ?c J)
+(caeria ?f ?c)
+(siguiente ?i ?c v ?f ?c)
+=>
+(retract ?r)
+(assert (Turno M))
+)
+
+;;;;; Lo mismo que antes, pero para una situación como esta: J _ J J
+;;;;;														 M _ J M
+;;;;; Asegurarnos que no coloca en la columna dos.
+
+(defrule comprobar_jugada_centro
+(declare (salience 1))
+?r <- (Juega M ?c)
+(centro_en_linea ?i ?c J)
+(caeria ?f ?c)
+(siguiente ?i ?c v ?f ?c)
+=>
+(retract ?r)
+(assert (Turno M))
 )
 
 

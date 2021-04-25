@@ -34,16 +34,16 @@
 ;;;;; Datos de la relacion HIJO y ESPOSO en mi familia que es suficiente para el problema, pues el resto se deduce de estas
 
 (deffacts relaciones
-   (Relacion (tipo HIJO) (sujeto Luis) (objeto Antonio)) ; "Luis es HIJO de Antonio
+   (Relacion (tipo HIJO) (sujeto Juanito) (objeto Antonio)) ; "Luis es HIJO de Antonio
    (Relacion (tipo HIJO) (sujeto Julia) (objeto Antonio))
    (Relacion (tipo HIJO) (sujeto Antonio) (objeto Jose))
    (Relacion (tipo HIJO) (sujeto Pepito) (objeto Jose))
    (Relacion (tipo HIJO) (sujeto Laura) (objeto JuanFrancisco))
    (Relacion (tipo HIJO) (sujeto Juan) (objeto JuanFrancisco))
-   (Relacion (tipo HIJO) (sujeto Juanito) (objeto Juan))
-   (Relacion (tipo HIJO) (sujeto Pablo) (objeto Juan))
+   (Relacion (tipo HIJO) (sujeto Luis) (objeto Juan))
+   (Relacion (tipo HIJO) (sujeto Lidia) (objeto Juan))
    (Relacion (tipo HIJO) (sujeto Alvaro) (objeto Juan))
-   (Relacion (tipo HIJO) (sujeto Lidia) (objeto Pepito))
+   (Relacion (tipo HIJO) (sujeto Pablo) (objeto Pepito))
    (Relacion (tipo HIJO) (sujeto JoseEmilio) (objeto Pepito))
    (Relacion (tipo ESPOSO) (sujeto Antonio) (objeto Laura)) ; "Antonio es ESPOSO de Laura"
    (Relacion (tipo ESPOSO) (sujeto Juan) (objeto Carmen)) 
